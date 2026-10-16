@@ -1,0 +1,22 @@
+name: api-test
+
+on:
+  push:
+  schedule:
+    - cron: '0 1 * * *'
+
+jobs:
+  runs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pytest requests PyYAML jsonpath-ng Faker pymysql pytest-html
+      - run: pytest cases/ -v --html=reports/report.html --self-contained-html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-report
+          path: reports/

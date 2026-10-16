@@ -1,0 +1,10 @@
+- name: 用户信息-正常
+  request:
+    method: GET
+    path: /api/user/info
+    headers: {token: "601_1791950294"}
+  assert:
+    - {type: status,expected: 200}
+    - {type: field,path: $.code,op: eq,expected: 0}
+    - {type: field,path: $.data,op: exists}
+    - {type: field, path: $.data.username, op: eq, expected: "load001" }

@@ -1,0 +1,8 @@
+- name: 积分排行榜-同分排序
+  request:
+    method: GET
+    path: /api/point/rank
+  assert:
+    - {type: status,expected: 200}
+    - {type: field,path: $.code,op: eq,expected: 0}
+    - {type: field,path: "$.data[0].user_id",op: eq,expected: 603}

@@ -1,0 +1,10 @@
+- name: 下单-金额落库校验
+  request:
+    method: POST
+    path: /api/order/create
+    headers: {token: "601_1791950294"}
+    json: {plan_id: 1}
+  assert:
+    - {type: status,expected: 200}
+    - {type: field,path: $.code,op: eq,expected: 0}
+    - {type: db,sql: SELECT amount FROM `order` ORDER BY id DESC LIMIT 1,expected: 0.1}

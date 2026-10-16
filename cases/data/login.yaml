@@ -1,0 +1,18 @@
+- name: 登录-正常
+  request:
+      method: POST
+      path: /api/user/login
+      json: {username: "load001",password: "123456"}
+  assert:
+      - {type: status,expected: 200}
+      - {type: field,path: $.code,op: eq,expected: 0}
+      - {type: field,path: $.token,op: exists}
+
+- name: 登录-密码错误
+  request:
+    method: POST
+    path: /api/user/login
+    json: {username: "load001",password: "wrong"}
+  assert:
+    - {type: status,expected: 200}
+    - {type: field,path: $.code,op: eq,expected: 401}

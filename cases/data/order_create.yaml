@@ -1,0 +1,19 @@
+- name: 下单-正常
+  request:
+    method: POST
+    path: /api/order/create
+    headers: {token: "601_1791950294"}
+    json: {plan_id: 1}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}
+
+- name: 下单-套餐不存在
+  request:
+    method: POST
+    path: /api/order/create
+    headers: {token: "601_1791950294"}
+    json: {plan_id: 99999}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 404}

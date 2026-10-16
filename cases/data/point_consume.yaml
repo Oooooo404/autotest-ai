@@ -1,0 +1,9 @@
+- name: 积分消耗-积分不足
+  request:
+    method: POST
+    path: /api/point/consume
+    headers: {token: "601_1791950294"}
+    json: {score: 1000}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 400}

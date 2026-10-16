@@ -1,0 +1,7 @@
+- name: 支付回调-无签名?
+  request:
+    method: POST
+    path: /api/pay/callback?order_id=1&status=PAID
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 401}

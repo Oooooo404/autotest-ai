@@ -1,0 +1,7 @@
+- name: 积分排行榜-正常
+  request:
+    method: GET
+    path: /api/point/rank
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}

@@ -1,0 +1,8 @@
+- name: 套餐列表-正常返回
+  request:
+    method: GET
+    path: /api/plan/list
+  assert:
+    - {type: status,expected: 200}
+    - {type: field,path: $.code,op: eq,expected: 0}
+    - {type: field,path: $.data,op: len_gt,expected: 1}

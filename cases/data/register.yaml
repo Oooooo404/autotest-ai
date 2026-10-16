@@ -1,0 +1,25 @@
+- name: 注册-随机用户
+  request:
+    method: POST
+    path: /api/user/register
+    json: "${tmp_user}"
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}
+
+- name: 注册-用户名为空
+  request:
+    method: POST
+    path: /api/user/register
+    json: {username: "",password: "123456",nickname: "测试"}
+  assert:
+    - {type: status,expected: 200}
+    - {type: field,path: $.code,op: neq,expected: 0}
+
+- name: 注册-用户名超长
+  request:
+    method: POST
+    path: /api/user/register
+    json: {username: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", password: "123456", nickname: "超长测试"}
+  assert:
+    - {type: status, expected: 400}

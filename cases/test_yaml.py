@@ -20,13 +20,30 @@ def test_api(case):
                         json=case["request"].get("json",{}))
     do_assert(resp,case["assert"])
 
-@pytest.mark.parametrize("case", load_all_cases())
-def test_api(case, tmp_user):
-    headers = case["request"].get("headers", {})
-    json_data = case["request"].get("json", {})
-    # 如果 json 是 "${tmp_user}"，就用 fixture 的数据替换
+@pytest.mark.parametrize("case",load_all_cases())
+def test_api(case,token,plan_id,order_id,tmp_user):
+    # 1.取出headers和json
+    headers = case["request"].get("headers",{})
+    json_data = case["request"].get("json",{})
+    path = case["request"]["path"]
+
+    # 2.如果 headers 里的 token 是 "${token}"，用 fixture 的 token 替换
+    if headers.get("token") == "${token}":
+        headers["token"] = token
+
+    # 3. 如果 json 是 "${tmp_user}"，用 fixture 的数据替换
     if json_data == "${tmp_user}":
         json_data = tmp_user
-    resp = Client().req(case["request"]["method"], case["request"]["path"],
-                        headers=headers, json=json_data)
-    do_assert(resp, case["assert"])
+
+    if json_data.get("plan_id") == "${plan_id}":
+        json_data["plan_id"] = plan_id
+
+    if "${order_id}" in path:
+        path = path.replace("${order_id}",str(order_id))
+
+    # 4.发请求
+    resp = Client().req(case["request"]["method"],path,
+                        headers=headers,json=json_data)
+
+    # 5.执行断言
+    do_assert(resp,case["assert"])

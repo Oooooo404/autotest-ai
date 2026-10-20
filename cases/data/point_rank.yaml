@@ -1,4 +1,4 @@
-- name: 积分排行榜-正常
+﻿- name: 积分排行榜-正常
   request:
     method: GET
     path: /api/point/rank

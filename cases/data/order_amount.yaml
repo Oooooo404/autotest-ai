@@ -1,9 +1,9 @@
-- name: 下单-金额落库校验
+﻿- name: 下单-金额落库校验
   request:
     method: POST
     path: /api/order/create
-    headers: {token: "601_1791950294"}
-    json: {plan_id: 1}
+    headers: {token: "${token}"}
+    json: {plan_id: "${plan_id}"}
   assert:
     - {type: status,expected: 200}
     - {type: field,path: $.code,op: eq,expected: 0}

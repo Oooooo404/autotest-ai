@@ -1,8 +1,8 @@
-- name: 积分消耗-积分不足
+﻿- name: 积分消耗-积分不足
   request:
     method: POST
     path: /api/point/consume
-    headers: {token: "601_1791950294"}
+    headers: {token: "${token}"}
     json: {score: 1000}
   assert:
     - {type: status, expected: 200}

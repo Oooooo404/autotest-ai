@@ -1,4 +1,4 @@
-- name: 注册-随机用户
+﻿- name: 注册-随机用户
   request:
     method: POST
     path: /api/user/register

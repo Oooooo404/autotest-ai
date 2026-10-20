@@ -1,0 +1,382 @@
+- name: 注册-正常
+  request:
+    method: POST
+    path: /api/user/register
+    json: {username: "${tmp_user}", password: "123456", nickname: "test_user"}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}
+
+- name: 注册-缺少用户名
+  request:
+    method: POST
+    path: /api/user/register
+    json: {password: "123456"}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 注册-缺少密码
+  request:
+    method: POST
+    path: /api/user/register
+    json: {username: "${tmp_user}"}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 注册-用户名为空
+  request:
+    method: POST
+    path: /api/user/register
+    json: {username: "", password: "123456"}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 注册-密码为空
+  request:
+    method: POST
+    path: /api/user/register
+    json: {username: "${tmp_user}", password: ""}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 注册-密码过短
+  request:
+    method: POST
+    path: /api/user/register
+    json: {username: "${tmp_user}", password: "123"}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 注册-密码过长
+  request:
+    method: POST
+    path: /api/user/register
+    json: {username: "${tmp_user}", password: "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 注册-用户名重复
+  request:
+    method: POST
+    path: /api/user/register
+    json: {username: "${tmp_user}", password: "123456"}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: neq, expected: 0}
+
+- name: 注册-用户名类型错误
+  request:
+    method: POST
+    path: /api/user/register
+    json: {username: 123456, password: "123456"}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 登录-正常
+  request:
+    method: POST
+    path: /api/user/login
+    json: {username: "${tmp_user}", password: "123456"}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}
+
+- name: 登录-密码错误
+  request:
+    method: POST
+    path: /api/user/login
+    json: {username: "${tmp_user}", password: "wrongpass"}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: neq, expected: 0}
+
+- name: 登录-用户不存在
+  request:
+    method: POST
+    path: /api/user/login
+    json: {username: "nonexist_user", password: "123456"}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: neq, expected: 0}
+
+- name: 登录-用户名为空
+  request:
+    method: POST
+    path: /api/user/login
+    json: {username: "", password: "123456"}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 登录-密码为空
+  request:
+    method: POST
+    path: /api/user/login
+    json: {username: "${tmp_user}", password: ""}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 登录-密码类型错误
+  request:
+    method: POST
+    path: /api/user/login
+    json: {username: "${tmp_user}", password: 123456}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 用户信息-正常
+  request:
+    method: GET
+    path: /api/user/info
+    headers: {token: "${token}"}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}
+
+- name: 用户信息-无token
+  request:
+    method: GET
+    path: /api/user/info
+  assert:
+    - {type: status, expected: 401}
+
+- name: 用户信息-token为空
+  request:
+    method: GET
+    path: /api/user/info
+    headers: {token: ""}
+  assert:
+    - {type: status, expected: 401}
+
+- name: 用户信息-token非法
+  request:
+    method: GET
+    path: /api/user/info
+    headers: {token: "invalid_token_string"}
+  assert:
+    - {type: status, expected: 401}
+
+- name: 套餐列表-正常
+  request:
+    method: GET
+    path: /api/plan/list
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}
+
+- name: 下单-正常
+  request:
+    method: POST
+    path: /api/order/create
+    headers: {token: "${token}"}
+    json: {plan_id: "${plan_id}"}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}
+
+- name: 下单-无token
+  request:
+    method: POST
+    path: /api/order/create
+    json: {plan_id: "${plan_id}"}
+  assert:
+    - {type: status, expected: 401}
+
+- name: 下单-plan_id为空
+  request:
+    method: POST
+    path: /api/order/create
+    headers: {token: "${token}"}
+    json: {}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 下单-plan_id类型错误
+  request:
+    method: POST
+    path: /api/order/create
+    headers: {token: "${token}"}
+    json: {plan_id: "plan_string"}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 下单-重复提交
+  request:
+    method: POST
+    path: /api/order/create
+    headers: {token: "${token}"}
+    json: {plan_id: "${plan_id}"}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}
+
+- name: 支付回调-正常
+  request:
+    method: POST
+    path: /api/pay/callback?order_id=1&status=success&sign=fake_sign
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}
+
+- name: 支付回调-缺少order_id
+  request:
+    method: POST
+    path: /api/pay/callback?status=success
+  assert:
+    - {type: status, expected: 422}
+
+- name: 支付回调-缺少status
+  request:
+    method: POST
+    path: /api/pay/callback?order_id=1
+  assert:
+    - {type: status, expected: 422}
+
+- name: 支付回调-order_id为空
+  request:
+    method: POST
+    path: /api/pay/callback?order_id=&status=success
+  assert:
+    - {type: status, expected: 422}
+
+- name: 支付回调-status为空
+  request:
+    method: POST
+    path: /api/pay/callback?order_id=1&status=
+  assert:
+    - {type: status, expected: 422}
+
+- name: 订单列表-正常
+  request:
+    method: GET
+    path: /api/order/list
+    headers: {token: "${token}"}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}
+
+- name: 订单列表-无token
+  request:
+    method: GET
+    path: /api/order/list
+  assert:
+    - {type: status, expected: 401}
+
+- name: 订单列表-status类型错误
+  request:
+    method: GET
+    path: /api/order/list?status=123
+    headers: {token: "${token}"}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 订单列表-page_size负数
+  request:
+    method: GET
+    path: /api/order/list
+    params:
+      page_size: -1
+    headers: {token: "${token}"}
+  assert:
+    - {type: status, expected: 422}  # 或者根据你代码的实际表现写
+
+- name: 订单列表-page_size过大
+  request:
+    method: GET
+    path: /api/order/list?page_size=9999999
+    headers: {token: "${token}"}
+  assert:
+    - {type: status, expected: 200}
+
+- name: 订单详情-正常
+  request:
+    method: GET
+    path: /api/order/detail?order_id=1
+    headers: {token: "${token}"}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}
+
+- name: 订单详情-无token
+  request:
+    method: GET
+    path: /api/order/detail?order_id=1
+  assert:
+    - {type: status, expected: 401}
+
+- name: 订单详情-order_id为空
+  request:
+    method: GET
+    path: /api/order/detail?order_id=
+    headers: {token: "${token}"}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 订单详情-order_id类型错误
+  request:
+    method: GET
+    path: /api/order/detail?order_id=abc
+    headers: {token: "${token}"}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 积分消费-正常
+  request:
+    method: POST
+    path: /api/point/consume
+    headers: {token: "${token}"}
+    json: {score: 10}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}
+
+- name: 积分消费-无token
+  request:
+    method: POST
+    path: /api/point/consume
+    json: {score: 10}
+  assert:
+    - {type: status, expected: 401}
+
+- name: 积分消费-score为空
+  request:
+    method: POST
+    path: /api/point/consume
+    headers: {token: "${token}"}
+    json: {}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 积分消费-score负数
+  request:
+    method: POST
+    path: /api/point/consume
+    headers: {token: "${token}"}
+    json: {score: -1}
+  assert:
+    - {type: status, expected: 422}
+
+- name: 积分消费-score超出余额
+  request:
+    method: POST
+    path: /api/point/consume
+    headers: {token: "${token}"}
+    json: {score: 99999999}
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: neq, expected: 0}
+
+- name: 积分排名-正常
+  request:
+    method: GET
+    path: /api/point/rank
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}
+
+- name: 积分排名-limit过大
+  request:
+    method: GET
+    path: /api/point/rank?limit=999999
+  assert:
+    - {type: status, expected: 200}
+    - {type: field, path: $.code, op: eq, expected: 0}

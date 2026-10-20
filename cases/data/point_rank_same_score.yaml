@@ -1,4 +1,4 @@
-- name: 积分排行榜-同分排序
+﻿- name: 积分排行榜-同分排序
   request:
     method: GET
     path: /api/point/rank

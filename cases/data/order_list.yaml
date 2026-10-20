@@ -1,8 +1,8 @@
-- name: 订单列表-正常
+﻿- name: 订单列表-正常
   request:
     method: GET
     path: /api/order/list
-    headers: {token: "601_1791950294"}
+    headers: {token: "${token}"}
   assert:
     - {type: status, expected: 200}
     - {type: field, path: $.code, op: eq, expected: 0}
